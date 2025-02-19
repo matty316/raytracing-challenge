@@ -27,12 +27,13 @@ struct Tuple {
         self.x = x
         self.y = y
         self.z = z
-        if w == 1.0 {
+        if equal(x: w, y: 1.0) {
             self.type = .point
-        } else if w == 0.0 {
+        } else if equal(x: w, y: 0.0) {
             self.type = .vec
         } else {
-            fatalError("Nonsense!")
+            assertionFailure("w is not 1 or 0")
+            self.type = .point
         }
     }
 }
@@ -69,4 +70,8 @@ func -(lhs: Tuple, rhs: Tuple) -> Tuple {
         z: lhs.z - rhs.z,
         w: lhs.w - rhs.w
     )
+}
+
+prefix func -(rhs: Tuple) -> Tuple {
+    Tuple(x: -rhs.x, y: -rhs.y, z: -rhs.z, w: -rhs.w)
 }

@@ -82,4 +82,13 @@ struct RaytracingTests {
         
         #expect(p0 - v1 == point(x: -2, y: -4, z: -6))
     }
+    
+    @Test func testNegateTuple() {
+        let zero = vec(x: 0, y: 0, z: 0)
+        let v = vec(x: 1, y: -2, z: 3)
+        let exp = vec(x: -1, y: 2, z: -3)
+        
+        #expect(zero - v == exp)
+        #expect(-v == exp)
+    }
 }
