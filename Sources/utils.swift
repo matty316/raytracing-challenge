@@ -5,6 +5,6 @@
 //  Created by matty on 2/18/25.
 //
 
-func equal(x: Float, y: Float) -> Bool {
+func equal(_ x: Float, _ y: Float) -> Bool {
     abs(x - y) < epsilon
 }

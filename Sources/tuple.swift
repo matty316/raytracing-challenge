@@ -5,36 +5,49 @@
 //  Created by matty on 2/18/25.
 //
 
+import Foundation
+
 enum TupleType {
-    case point, vec
+    case point, vec, none
 }
 
 struct Tuple {
     var x: Float
     var y: Float
     var z: Float
-    var w: Float {
-        get {
-            switch type {
-            case .point: 1
-            case .vec: 0
-            }
-        }
-    }
+    var w: Float
+    
+    var r: Float { x }
+    var g: Float { y }
+    var b: Float { z }
+    
     let type: TupleType
     
     init(x: Float, y: Float, z: Float, w: Float) {
         self.x = x
         self.y = y
         self.z = z
-        if equal(x: w, y: 1.0) {
+        self.w = w
+        if equal(w, 1.0) {
             self.type = .point
-        } else if equal(x: w, y: 0.0) {
+        } else if equal(w, 0.0) {
             self.type = .vec
         } else {
-            assertionFailure("w is not 1 or 0")
-            self.type = .point
+            self.type = .none
         }
+    }
+    
+    func magnitude() -> Float {
+        sqrt(x * x + y * y + z * z + w * w)
+    }
+    
+    func normalize() -> Tuple {
+        Tuple(
+            x: x / magnitude(),
+            y: y / magnitude(),
+            z: z / magnitude(),
+            w: w / magnitude()
+        )
     }
 }
 
@@ -46,8 +59,12 @@ func vec(x: Float, y: Float, z: Float) -> Tuple {
     Tuple(x: x, y: y, z: z, w: 0)
 }
 
+func color(_ x: Float, _ y: Float, _ z: Float) -> Tuple {
+    Tuple(x: x, y: y, z: z, w: 2)
+}
+
 func ==(lhs: Tuple, rhs: Tuple) -> Bool {
-    equal(x: lhs.x, y: rhs.x) && equal(x: lhs.y, y: rhs.y) && equal(x: lhs.z, y: rhs.z) && equal(x: lhs.w, y: rhs.w)
+    equal(lhs.x, rhs.x) && equal(lhs.y, rhs.y) && equal(lhs.z, rhs.z) && equal(lhs.w, rhs.w)
 }
 
 func !=(lhs: Tuple, rhs: Tuple) -> Bool {
@@ -74,4 +91,29 @@ func -(lhs: Tuple, rhs: Tuple) -> Tuple {
 
 prefix func -(rhs: Tuple) -> Tuple {
     Tuple(x: -rhs.x, y: -rhs.y, z: -rhs.z, w: -rhs.w)
+}
+
+func *(lhs: Tuple, rhs: Float) -> Tuple {
+    Tuple(
+        x: lhs.x * rhs,
+        y: lhs.y * rhs,
+        z: lhs.z * rhs,
+        w: lhs.w * rhs
+    )
+}
+
+func /(lhs: Tuple, rhs: Float) -> Tuple {
+    lhs * (1 / rhs)
+}
+
+func dot(_ lhs: Tuple, _ rhs: Tuple) -> Float {
+    lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w
+}
+
+func cross(_ lhs: Tuple, _ rhs: Tuple) -> Tuple {
+    vec(
+        x: lhs.y * rhs.z - lhs.z * rhs.y,
+        y: lhs.z * rhs.x - lhs.x * rhs.z,
+        z: lhs.x * rhs.y - lhs.y * rhs.x
+    )
 }

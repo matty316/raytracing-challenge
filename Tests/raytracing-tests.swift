@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Foundation
 @testable import raytracing_challenge
 
 struct RaytracingTests {
@@ -44,7 +45,7 @@ struct RaytracingTests {
         let y: Float = 0.0000000012
         
         //close enough
-        #expect(equal(x: x, y: y))
+        #expect(equal(x, y))
     }
     
     @Test func testTuplesEqual() {
@@ -90,5 +91,64 @@ struct RaytracingTests {
         
         #expect(zero - v == exp)
         #expect(-v == exp)
+        
+        let t = Tuple(x: 1, y: -2, z: 3, w: -4)
+        #expect(-t == Tuple(x: -1, y: 2, z: -3, w: 4))
+    }
+    
+    @Test func testMulTupleByScaler() {
+        let a = Tuple(x: 1, y: -2, z: 3, w: -4)
+        #expect(a * 3.5 == Tuple(x: 3.5, y: -7, z: 10.5, w: -14))
+        #expect(a * 0.5 == Tuple(x: 0.5, y: -1, z: 1.5, w: -2))
+    }
+    
+    @Test func testDivTupleByScaler() {
+        let a = Tuple(x: 1, y: -2, z: 3, w: -4)
+        #expect(a / 2 == Tuple(x: 0.5, y: -1, z: 1.5, w: -2))
+    }
+    
+    @Test func testGetMagnitude() {
+        var v = vec(x: 1, y: 0, z: 0)
+        #expect(equal(v.magnitude(), 1))
+        v = vec(x: 0, y: 1, z: 0)
+        #expect(equal(v.magnitude(), 1))
+        v = vec(x: 0, y: 0, z: 1)
+        #expect(equal(v.magnitude(), 1))
+        v = vec(x: 1, y: 2, z: 3)
+        #expect(equal(v.magnitude(), sqrt(14)))
+        v = vec(x: -1, y: -2, z: -3)
+        #expect(equal(v.magnitude(), sqrt(14)))
+    }
+    
+    @Test func testNormalize() {
+        var v = vec(x: 4, y: 0, z: 0)
+        #expect(v.normalize() == vec(x: 1, y: 0, z: 0))
+        
+        v = vec(x: 1, y: 2, z: 3)
+        #expect(v.normalize() == vec(x: 0.26726, y: 0.53452, z: 0.80178))
+        
+        #expect(equal(v.normalize().magnitude(), 1))
+    }
+    
+    @Test func testDotProduct() {
+        let a = vec(x: 1, y: 2, z: 3)
+        let b = vec(x: 2, y: 3, z: 4)
+        #expect(equal(dot(a, b), 20))
+    }
+    
+    @Test func testCrossProduct() {
+        let a = vec(x: 1, y: 2, z: 3)
+        let b = vec(x: 2, y: 3, z: 4)
+        
+        #expect(cross(a, b) == vec(x: -1, y: 2, z: -1))
+        #expect(cross(b, a) == vec(x: 1, y: -2, z: 1))
+    }
+    
+    @Test func testColor() {
+        let color = color(-0.5, 0.4, 1.7)
+        #expect(equal(color.r, -0.5))
+        #expect(equal(color.g, 0.4))
+        #expect(equal(color.b, 1.7))
+
     }
 }
