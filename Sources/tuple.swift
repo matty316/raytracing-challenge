@@ -8,7 +8,7 @@
 import Foundation
 
 enum TupleType {
-    case point, vec, none
+    case point, vec, color, none
 }
 
 struct Tuple {
@@ -23,17 +23,21 @@ struct Tuple {
     
     let type: TupleType
     
-    init(x: Float, y: Float, z: Float, w: Float) {
+    init(x: Float, y: Float, z: Float, w: Float, type: TupleType? = nil) {
         self.x = x
         self.y = y
         self.z = z
         self.w = w
-        if equal(w, 1.0) {
-            self.type = .point
-        } else if equal(w, 0.0) {
-            self.type = .vec
+        if let type = type {
+            self.type = type
         } else {
-            self.type = .none
+            if equal(w, 1.0) {
+                self.type = .point
+            } else if equal(w, 0.0) {
+                self.type = .vec
+            } else {
+                self.type = .none
+            }
         }
     }
     
@@ -59,8 +63,8 @@ func vec(x: Float, y: Float, z: Float) -> Tuple {
     Tuple(x: x, y: y, z: z, w: 0)
 }
 
-func color(_ x: Float, _ y: Float, _ z: Float) -> Tuple {
-    Tuple(x: x, y: y, z: z, w: 2)
+func color(_ r: Float, _ g: Float, _ b: Float) -> Tuple {
+    Tuple(x: r, y: g, z: b, w: 0, type: TupleType.color)
 }
 
 func ==(lhs: Tuple, rhs: Tuple) -> Bool {
@@ -90,7 +94,12 @@ func -(lhs: Tuple, rhs: Tuple) -> Tuple {
 }
 
 prefix func -(rhs: Tuple) -> Tuple {
-    Tuple(x: -rhs.x, y: -rhs.y, z: -rhs.z, w: -rhs.w)
+    Tuple(
+        x: -rhs.x,
+        y: -rhs.y,
+        z: -rhs.z,
+        w: -rhs.w
+    )
 }
 
 func *(lhs: Tuple, rhs: Float) -> Tuple {
@@ -115,5 +124,14 @@ func cross(_ lhs: Tuple, _ rhs: Tuple) -> Tuple {
         x: lhs.y * rhs.z - lhs.z * rhs.y,
         y: lhs.z * rhs.x - lhs.x * rhs.z,
         z: lhs.x * rhs.y - lhs.y * rhs.x
+    )
+}
+
+func *(lhs: Tuple, rhs: Tuple) -> Tuple {
+    Tuple(
+        x: lhs.x * rhs.x,
+        y: lhs.y * rhs.y,
+        z: lhs.z * rhs.z,
+        w: lhs.w * rhs.w
     )
 }

@@ -149,6 +149,113 @@ struct RaytracingTests {
         #expect(equal(color.r, -0.5))
         #expect(equal(color.g, 0.4))
         #expect(equal(color.b, 1.7))
+        #expect(color.type == .color)
+    }
+    
+    @Test func testColorOperations() {
+        let c0 = color(0.9, 0.6, 0.75)
+        let c1 = color(0.7, 0.1, 0.25)
+        #expect(c0 + c1 == color(1.6, 0.7, 1.0))
+        #expect(c0 - c1 == color(0.2, 0.5, 0.5))
+        let c3 = color(0.2, 0.3, 0.4)
+        #expect(c3 * 2 == color(0.4, 0.6, 0.8))
+        let c4 = color(1, 0.2, 0.4)
+        let c5 = color(0.9, 1, 0.1)
+        #expect(c4 * c5 == color(0.9, 0.2, 0.04))
+    }
+    
+    @Test func testCreateCanvas() {
+        let c = Canvas(width: 10, height: 20)
+        #expect(c.width == 10)
+        #expect(c.height == 20)
+        for pixelArray in c.pixels {
+            for pixel in pixelArray {
+                #expect(pixel == color(0, 0, 0))
+            }
+        }
+    }
+    
+    @Test func writePixelToCanvas() {
+        var c = Canvas(width: 10, height: 20)
+        let red = color(1, 0, 0)
+        c.write(2, 3, red)
+        #expect(c.pixelAt(2, 3) == red)
+    }
+    
+    @Test func testCanvasToPPMHeader() {
+        let c = Canvas(width: 5, height: 3)
+        let ppm = c.ppm()
+        let header = """
+P3
+5 3
+255
+"""
+        #expect(ppm.header == header)
+    }
+    
+    @Test func testPPMData() {
+        var c = Canvas(width: 5, height: 3)
+        let c0 = color(1.5, 0, 0)
+        let c1 = color(0, 0.5, 0)
+        let c2 = color(-0.5, 0, 1)
+        c.write(0, 0, c0)
+        c.write(2, 1, c1)
+        c.write(4, 2, c2)
+        let ppm = c.ppm()
+        print(c.pixels)
+        let body = """
+255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 255
+"""
+        #expect(ppm.body == body)
+    }
+    
+    @Test func testPPMLongLines() {
+        let body = """
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+"""
+        
+        var c = Canvas(width: 10, height: 2)
+        for x in 0..<10 {
+            for y in 0..<2 {
+                c.write(x, y, color(1, 0.8, 0.6))
+            }
+        }
+        let ppm = c.ppm()
+        #expect(ppm.body == body)
+    }
+    
+    @Test func testPPMEndsInNewline() {
+        let c = Canvas(width: 5, height: 3)
+        let ppm = c.ppm()
+        let ppmString = ppm.string()
+        #expect(ppmString.last == "\n")
+    }
+    
+    @Test func testPPMString() {
+        let string = """
+P3
+10 10
+255
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
 
+"""
+        var c = Canvas(width: 10, height: 10)
+        for x in 0..<10 {
+            for y in 0..<10 {
+                c.write(x, y, color(1, 0.8, 0.6))
+            }
+        }
+        #expect(c.ppm().string() == string)
     }
 }
